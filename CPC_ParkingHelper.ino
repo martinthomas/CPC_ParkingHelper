@@ -5,18 +5,20 @@
 
 const int trigPin = 10;
 const int echoPin = 9;
-const int MINIMUM_SAFE_DISTANCE = 15*2.54;
+const int MINIMUM_SAFE_DISTANCE = 15*2.54; // 15 inches
 const int DELAY = 250;
 
 UltrasonicSensor usensor(trigPin, echoPin);
-Display pixels;
+Display pixels(MINIMUM_SAFE_DISTANCE);
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200);      // Open serial channel at 115200 baud rate
+  Serial.begin(115200);
   CircuitPlayground.begin();
   usensor.start();
   pixels.start();
+  delay(1000);
+  
 }
 
 void loop() {
@@ -24,12 +26,8 @@ void loop() {
   unsigned int d = usensor.getDistance();
   Serial.print("Distance: ");
   Serial.println(d);
-  if (d < MINIMUM_SAFE_DISTANCE){
-    pixels.alert();
-  } else {
-    Serial.print("distance ");
-    Serial.println(d);
-    pixels.graph((d - MINIMUM_SAFE_DISTANCE)/10, CircuitPlayground.strip.Color(0, 255, 0));
-  }
-  delay(DELAY*2);
+  
+  pixels.displayDistance(d);
+  
+  delay(DELAY);
 }

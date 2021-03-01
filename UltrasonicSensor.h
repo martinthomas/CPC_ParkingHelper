@@ -3,6 +3,10 @@
 #define SENSOR_H
 
 class UltrasonicSensor {
+  private:
+    int trigP;
+    int echoP;
+
   public:
     UltrasonicSensor(int trigPin, int echoPin){
       trigP = trigPin;
@@ -29,11 +33,6 @@ class UltrasonicSensor {
   
       return estDistance;
     }
-
-  private:
-    int trigP;
-    int echoP;
-
 };
 
 #endif
