@@ -6,7 +6,7 @@ class Display{
   
     bool alert_state = false;
     size_t display_counter = 0;
-    size_t display_counter_max = 240;
+    size_t display_counter_max = 100;
     size_t alert_beats = 0; 
     const unsigned alert_beats_initial = 2;
     unsigned msd = 30;
@@ -61,6 +61,7 @@ class Display{
         if (display_counter > display_counter_max){  // turn off light if on without interruption for 1 mins
           color = CircuitPlayground.strip.Color(0, 0, 0);
           display_on = false;
+          Serial.println("Display OFF");
         }
       }
 
@@ -83,8 +84,8 @@ class Display{
         for(size_t idx =0; idx <= magnitude; idx++){
           CircuitPlayground.strip.setPixelColor(idx, color);
         }
-        CircuitPlayground.strip.show();      
       }
+      CircuitPlayground.strip.show();      
     }
 };
 #endif
