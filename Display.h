@@ -13,8 +13,7 @@ class Display{
     size_t last_magnitude = 0;
     
   public:
-    Display(const unsigned minimum_safe_distance){
-      msd = minimum_safe_distance;
+    Display(){
       alert_beats = alert_beats_initial;
     }
     
@@ -30,14 +29,14 @@ class Display{
       CircuitPlayground.strip.show();
     }
 
-    void displayDistance(size_t distance){
-      if (distance < msd)
+    void displayDistance(size_t distance, const unsigned int thresh){
+      if (distance < thresh)
       {
         alert_state = true;
         displayGraph(10, true);
       } else {
         alert_state = false;
-        size_t magnitude = (distance - msd)/10;
+        size_t magnitude = (distance - thresh)/10;
         displayGraph(magnitude, false);
       }
     }
