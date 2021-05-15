@@ -20,7 +20,7 @@ class UltrasonicSensor {
       pinMode(echoP, INPUT);   // Sets the echoPin as an Input
     }
 
-    unsigned int getDistance(){
+    float getDistance(){
       digitalWrite(trigP, LOW);   // Makes trigPin low
       delayMicroseconds(2);       // 2 micro second delay 
       
@@ -28,9 +28,8 @@ class UltrasonicSensor {
       delayMicroseconds(10);      // trigPin high for 10 micro seconds
       digitalWrite(trigP, LOW);   // trigPin low
       
-      unsigned int interval = pulseIn(echoP, HIGH);   //Read echo pin, time in microseconds
-      unsigned int estDistance= interval*0.034/2;        //Calculating actual/real distance
-  
+      float interval = pulseIn(echoP, HIGH);   //Read echo pin, time in microseconds
+      float estDistance= interval*0.034/2;        //Calculating actual/real distance
       return estDistance;
     }
 };

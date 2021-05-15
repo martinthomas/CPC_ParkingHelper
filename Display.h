@@ -3,17 +3,23 @@
 
 class Display{
   private:
-  
-    bool alert_state = false;
+    enum alert_state_t {NONE=0, CLOSE, DONK } alert_state;
     size_t display_counter = 0;
-    size_t display_counter_max = 100;
+    size_t display_counter_max = 150;
     size_t alert_beats = 0; 
-    const unsigned alert_beats_initial = 2;
-    unsigned msd = 30;
+    const unsigned alert_beats_initial = 4;
+    
+    float scary_close = 30;
+    
     size_t last_magnitude = 0;
     
+    uint32_t ALERT_COL = CircuitPlayground.strip.Color(255, 0, 0);
+    uint32_t DARK_COL = CircuitPlayground.strip.Color(0, 0, 0);
+    uint32_t CLOSE_COL = CircuitPlayground.strip.Color(0, 255, 0);
+    uint32_t FAR_COL = CircuitPlayground.strip.Color(0, 255, 255);
+    
   public:
-    Display(){
+    Display(const unsigned int scary_val) : scary_close(scary_val){
       alert_beats = alert_beats_initial;
     }
     
@@ -29,23 +35,32 @@ class Display{
       CircuitPlayground.strip.show();
     }
 
-    void displayDistance(size_t distance, const unsigned int thresh){
+    void displayDistance(float distance, const float thresh){
       if (distance < thresh)
       {
-        alert_state = true;
-        displayGraph(10, true);
+        alert_state = CLOSE;
+        if (distance < scary_close){
+           alert_state = DONK;
+        }
+        displayGraph(10);
       } else {
-        alert_state = false;
+        alert_state = NONE;
         size_t magnitude = (distance - thresh)/10;
-        displayGraph(magnitude, false);
+        displayGraph(magnitude);
+      }
+    }
+
+    void setManyPixels(uint32_t color, const unsigned int magnitude){
+      for(size_t idx =0; idx <= magnitude; idx++){
+        CircuitPlayground.strip.setPixelColor(idx, color);
       }
     }
     
-    void displayGraph(unsigned magnitude, bool alerting){
+    void displayGraph(unsigned int magnitude){
 
       bool display_on = true;
       CircuitPlayground.strip.clear();      
-      uint32_t color = CircuitPlayground.strip.Color(255, 0, 0); //default is red
+      uint32_t color = ALERT_COL;
       
       if (magnitude > 10){
         magnitude = 10;
@@ -58,30 +73,37 @@ class Display{
       } else { // same distance, update counter and check limit
         display_counter ++;
         if (display_counter > display_counter_max){  // turn off light if on without interruption for 1 mins
-          color = CircuitPlayground.strip.Color(0, 0, 0);
+          color = DARK_COL;
           display_on = false;
-          Serial.println("Display OFF");
         }
       }
 
       // pick color to display depending on if alerting or not
       if (display_on){
-        if (alerting){
-          if(alert_beats){ // turn on and off 
-            alert_beats--;
-          } else {
-            color = CircuitPlayground.strip.Color(0, 0, 0);
-            alert_beats = alert_beats_initial;
-          }
-        } else {        
-          color = CircuitPlayground.strip.Color(0, 255, 0);
+        if (alert_state == NONE){
+          color = FAR_COL;
           if (magnitude <5){
-           color = CircuitPlayground.strip.Color(0, 255, 255);
+            color = CLOSE_COL;
           }
-        }
-
-        for(size_t idx =0; idx <= magnitude; idx++){
-          CircuitPlayground.strip.setPixelColor(idx, color);
+          setManyPixels(color, magnitude);
+          
+        } else { //  in alert state
+          if (alert_state == CLOSE){
+            if(alert_beats){ // turn on and off 
+              alert_beats--;
+            } else {
+              color = DARK_COL;
+              alert_beats = alert_beats_initial;
+            }
+          setManyPixels(color, magnitude);
+          } else { /* if alert state == DONK */ 
+            int32_t offset = millis() / 5;
+            // Loop through each pixel and set it to an incremental color wheel value.
+            for(int i=0; i<10; ++i) {
+              CircuitPlayground.strip.setPixelColor(i, CircuitPlayground.colorWheel(((i * 256 / 10) + offset) & 255));
+            }
+            CircuitPlayground.strip.show();
+          }
         }
       }
       CircuitPlayground.strip.show();      
