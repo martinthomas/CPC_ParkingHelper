@@ -13,12 +13,12 @@ UltrasonicSensor usensor(trigPin, echoPin);
 Display pixels;
 
 void setup() {
+  delay(1000);
   // put your setup code here, to run once:
   Serial.begin(115200);
   CircuitPlayground.begin();
   usensor.start();
   pixels.start();
-  delay(1000);
   
 }
 
